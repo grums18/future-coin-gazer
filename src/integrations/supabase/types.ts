@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      onchain_metrics: {
+        Row: {
+          active_addresses: number | null
+          created_at: string | null
+          exchange_inflows: number | null
+          exchange_outflows: number | null
+          id: string
+          network_value: number | null
+          timestamp: string
+          token_symbol: string
+          transaction_volume: number | null
+        }
+        Insert: {
+          active_addresses?: number | null
+          created_at?: string | null
+          exchange_inflows?: number | null
+          exchange_outflows?: number | null
+          id?: string
+          network_value?: number | null
+          timestamp: string
+          token_symbol: string
+          transaction_volume?: number | null
+        }
+        Update: {
+          active_addresses?: number | null
+          created_at?: string | null
+          exchange_inflows?: number | null
+          exchange_outflows?: number | null
+          id?: string
+          network_value?: number | null
+          timestamp?: string
+          token_symbol?: string
+          transaction_volume?: number | null
+        }
+        Relationships: []
+      }
       portfolio_holdings: {
         Row: {
           amount: number
@@ -75,6 +111,45 @@ export type Database = {
         }
         Relationships: []
       }
+      price_data: {
+        Row: {
+          close_price: number
+          created_at: string | null
+          high_price: number
+          id: string
+          low_price: number
+          market_cap: number | null
+          open_price: number
+          timestamp: string
+          token_symbol: string
+          volume: number | null
+        }
+        Insert: {
+          close_price: number
+          created_at?: string | null
+          high_price: number
+          id?: string
+          low_price: number
+          market_cap?: number | null
+          open_price: number
+          timestamp: string
+          token_symbol: string
+          volume?: number | null
+        }
+        Update: {
+          close_price?: number
+          created_at?: string | null
+          high_price?: number
+          id?: string
+          low_price?: number
+          market_cap?: number | null
+          open_price?: number
+          timestamp?: string
+          token_symbol?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -99,6 +174,117 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sentiment_data: {
+        Row: {
+          created_at: string | null
+          fear_greed_index: number | null
+          id: string
+          news_sentiment: number | null
+          sentiment_label: string | null
+          sentiment_score: number | null
+          social_mentions: number | null
+          timestamp: string
+          token_symbol: string
+        }
+        Insert: {
+          created_at?: string | null
+          fear_greed_index?: number | null
+          id?: string
+          news_sentiment?: number | null
+          sentiment_label?: string | null
+          sentiment_score?: number | null
+          social_mentions?: number | null
+          timestamp: string
+          token_symbol: string
+        }
+        Update: {
+          created_at?: string | null
+          fear_greed_index?: number | null
+          id?: string
+          news_sentiment?: number | null
+          sentiment_label?: string | null
+          sentiment_score?: number | null
+          social_mentions?: number | null
+          timestamp?: string
+          token_symbol?: string
+        }
+        Relationships: []
+      }
+      tokens: {
+        Row: {
+          blockchain: string | null
+          coingecko_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          market_cap: number | null
+          name: string
+          symbol: string
+          updated_at: string | null
+        }
+        Insert: {
+          blockchain?: string | null
+          coingecko_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_cap?: number | null
+          name: string
+          symbol: string
+          updated_at?: string | null
+        }
+        Update: {
+          blockchain?: string | null
+          coingecko_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          market_cap?: number | null
+          name?: string
+          symbol?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trading_signals: {
+        Row: {
+          confidence_score: number
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          risk_level: string | null
+          signal_type: string
+          stop_loss: number | null
+          target_price: number | null
+          timeframe: string
+          token_symbol: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          risk_level?: string | null
+          signal_type: string
+          stop_loss?: number | null
+          target_price?: number | null
+          timeframe: string
+          token_symbol: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          risk_level?: string | null
+          signal_type?: string
+          stop_loss?: number | null
+          target_price?: number | null
+          timeframe?: string
+          token_symbol?: string
         }
         Relationships: []
       }

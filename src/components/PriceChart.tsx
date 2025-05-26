@@ -1,57 +1,70 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { useHistoricalPrices } from '@/hooks/useCryptoData';
+import { useTokens } from '@/hooks/useCryptoData';
+import { Loader2 } from 'lucide-react';
 
 interface PriceChartProps {
   crypto: string;
 }
 
 const PriceChart = ({ crypto }: PriceChartProps) => {
-  // Mock historical and predicted data
-  const generateMockData = () => {
-    const data = [];
-    const basePrice = crypto === 'BTC' ? 42000 : crypto === 'ETH' ? 2500 : 1;
-    const currentDate = new Date();
-    
-    // Historical data (last 30 days)
-    for (let i = 30; i >= 0; i--) {
-      const date = new Date(currentDate);
-      date.setDate(date.getDate() - i);
-      const randomVariation = (Math.random() - 0.5) * 0.1;
-      const price = basePrice * (1 + randomVariation + (i * 0.002));
-      
-      data.push({
-        date: date.toLocaleDateString(),
-        price: Number(price.toFixed(2)),
-        type: 'historical'
-      });
-    }
-    
-    // Predicted data (next 7 days)
-    for (let i = 1; i <= 7; i++) {
-      const date = new Date(currentDate);
-      date.setDate(date.getDate() + i);
-      const trendFactor = 0.02; // Slight upward trend
-      const randomVariation = (Math.random() - 0.5) * 0.05;
-      const lastPrice = data[data.length - 1].price;
-      const predictedPrice = lastPrice * (1 + trendFactor + randomVariation);
-      
-      data.push({
-        date: date.toLocaleDateString(),
-        price: Number(predictedPrice.toFixed(2)),
-        type: 'predicted'
-      });
-    }
-    
-    return data;
-  };
+  const { data: tokens = [] } = useTokens();
+  const selectedToken = tokens.find(token => token.symbol === crypto);
+  const coingeckoId = selectedToken?.coingecko_id || '';
 
-  const data = generateMockData();
-  const currentIndex = data.findIndex(d => d.type === 'predicted') - 1;
+  const { data: historicalData, isLoading, error } = useHistoricalPrices(coingeckoId, 30);
+
+  if (isLoading) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+      </div>
+    );
+  }
+
+  if (error || !historicalData) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <p className="text-slate-400">Unable to load price data</p>
+      </div>
+    );
+  }
+
+  // Transform CoinGecko data to chart format
+  const chartData = historicalData.prices?.map((price: number[], index: number) => {
+    const date = new Date(price[0]);
+    return {
+      date: date.toLocaleDateString(),
+      price: Number(price[1].toFixed(2)),
+      type: 'historical'
+    };
+  }) || [];
+
+  // Add mock prediction data for the next 7 days
+  const lastPrice = chartData[chartData.length - 1]?.price || 0;
+  const currentDate = new Date();
+  
+  for (let i = 1; i <= 7; i++) {
+    const date = new Date(currentDate);
+    date.setDate(date.getDate() + i);
+    const trendFactor = 0.02; // Slight upward trend
+    const randomVariation = (Math.random() - 0.5) * 0.05;
+    const predictedPrice = lastPrice * (1 + trendFactor + randomVariation);
+    
+    chartData.push({
+      date: date.toLocaleDateString(),
+      price: Number(predictedPrice.toFixed(2)),
+      type: 'predicted'
+    });
+  }
+
+  const currentIndex = chartData.findIndex(d => d.type === 'predicted') - 1;
 
   return (
     <div className="h-96">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis 
             dataKey="date" 
@@ -81,7 +94,7 @@ const PriceChart = ({ crypto }: PriceChartProps) => {
             strokeWidth={2}
             dot={false}
             connectNulls={false}
-            data={data.filter((_, index) => index <= currentIndex)}
+            data={chartData.filter((_, index) => index <= currentIndex)}
           />
           
           {/* Predicted price line */}
@@ -93,11 +106,13 @@ const PriceChart = ({ crypto }: PriceChartProps) => {
             strokeDasharray="5 5"
             dot={false}
             connectNulls={false}
-            data={data.filter((_, index) => index >= currentIndex)}
+            data={chartData.filter((_, index) => index >= currentIndex)}
           />
           
           {/* Current time reference line */}
-          <ReferenceLine x={data[currentIndex]?.date} stroke="#EF4444" strokeDasharray="2 2" />
+          {currentIndex >= 0 && (
+            <ReferenceLine x={chartData[currentIndex]?.date} stroke="#EF4444" strokeDasharray="2 2" />
+          )}
         </LineChart>
       </ResponsiveContainer>
       
