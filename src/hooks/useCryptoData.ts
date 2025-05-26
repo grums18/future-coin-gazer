@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { cryptoDataService, Token, PriceData, TradingSignal } from '@/services/cryptoDataService';
+import { cryptoDataService, Token, PriceData, TradingSignal, OnChainMetrics, SentimentData } from '@/services/cryptoDataService';
 
 export const useTokens = () => {
   return useQuery({
@@ -24,6 +24,24 @@ export const useTradingSignals = (tokenSymbol?: string) => {
     queryKey: ['tradingSignals', tokenSymbol],
     queryFn: () => cryptoDataService.getTradingSignals(tokenSymbol),
     staleTime: 30 * 1000, // 30 seconds
+  });
+};
+
+export const useOnChainMetrics = (tokenSymbol: string, days: number = 7) => {
+  return useQuery({
+    queryKey: ['onChainMetrics', tokenSymbol, days],
+    queryFn: () => cryptoDataService.getOnChainMetrics(tokenSymbol, days),
+    enabled: !!tokenSymbol,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useSentimentData = (tokenSymbol: string, days: number = 7) => {
+  return useQuery({
+    queryKey: ['sentimentData', tokenSymbol, days],
+    queryFn: () => cryptoDataService.getSentimentData(tokenSymbol, days),
+    enabled: !!tokenSymbol,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 

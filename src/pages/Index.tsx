@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +12,7 @@ import PortfolioTracker from '@/components/PortfolioTracker';
 import MarketOverview from '@/components/MarketOverview';
 import RiskManagement from '@/components/RiskManagement';
 import { TrendingUp, LogIn } from 'lucide-react';
+import PredictionAnalysis from '@/components/PredictionAnalysis';
 
 const Index = () => {
   const [selectedCrypto, setSelectedCrypto] = useState('BTC');
@@ -149,6 +149,9 @@ const Index = () => {
                 <PriceChart crypto={selectedCrypto} />
               </CardContent>
             </Card>
+
+            {/* Advanced Prediction Analysis */}
+            <PredictionAnalysis crypto={selectedCrypto} />
 
             {/* Prediction Panel */}
             <PredictionPanel crypto={selectedCrypto} />
