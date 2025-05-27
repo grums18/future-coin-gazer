@@ -13,7 +13,15 @@ const PriceChart = ({ crypto }: PriceChartProps) => {
   const selectedToken = tokens.find(token => token.symbol === crypto);
   const coingeckoId = selectedToken?.coingecko_id || '';
 
+  console.log('PriceChart - crypto:', crypto);
+  console.log('PriceChart - selectedToken:', selectedToken);
+  console.log('PriceChart - coingeckoId:', coingeckoId);
+
   const { data: historicalData, isLoading, error } = useHistoricalPrices(coingeckoId, 30);
+
+  console.log('PriceChart - historicalData:', historicalData);
+  console.log('PriceChart - isLoading:', isLoading);
+  console.log('PriceChart - error:', error);
 
   if (isLoading) {
     return (
@@ -24,9 +32,15 @@ const PriceChart = ({ crypto }: PriceChartProps) => {
   }
 
   if (error || !historicalData) {
+    console.error('Chart error or no data:', error);
     return (
       <div className="h-96 flex items-center justify-center">
-        <p className="text-slate-400">Unable to load price data</p>
+        <div className="text-center">
+          <p className="text-slate-400">Unable to load price data</p>
+          <p className="text-sm text-slate-500 mt-2">
+            {error ? `Error: ${error instanceof Error ? error.message : 'Unknown error'}` : 'No data available'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -41,25 +55,37 @@ const PriceChart = ({ crypto }: PriceChartProps) => {
     };
   }) || [];
 
-  // Add mock prediction data for the next 7 days
-  const lastPrice = chartData[chartData.length - 1]?.price || 0;
-  const currentDate = new Date();
-  
-  for (let i = 1; i <= 7; i++) {
-    const date = new Date(currentDate);
-    date.setDate(date.getDate() + i);
-    const trendFactor = 0.02; // Slight upward trend
-    const randomVariation = (Math.random() - 0.5) * 0.05;
-    const predictedPrice = lastPrice * (1 + trendFactor + randomVariation);
+  console.log('PriceChart - chartData length:', chartData.length);
+
+  // Add mock prediction data for the next 7 days if we have historical data
+  if (chartData.length > 0) {
+    const lastPrice = chartData[chartData.length - 1]?.price || 0;
+    const currentDate = new Date();
     
-    chartData.push({
-      date: date.toLocaleDateString(),
-      price: Number(predictedPrice.toFixed(2)),
-      type: 'predicted'
-    });
+    for (let i = 1; i <= 7; i++) {
+      const date = new Date(currentDate);
+      date.setDate(date.getDate() + i);
+      const trendFactor = 0.02; // Slight upward trend
+      const randomVariation = (Math.random() - 0.5) * 0.05;
+      const predictedPrice = lastPrice * (1 + trendFactor + randomVariation);
+      
+      chartData.push({
+        date: date.toLocaleDateString(),
+        price: Number(predictedPrice.toFixed(2)),
+        type: 'predicted'
+      });
+    }
   }
 
   const currentIndex = chartData.findIndex(d => d.type === 'predicted') - 1;
+
+  if (chartData.length === 0) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <p className="text-slate-400">No price data available for this token</p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-96">

@@ -20,28 +20,49 @@ const PredictionPanel = ({ crypto }: PredictionPanelProps) => {
   const { data: signals = [], refetch: refetchSignals } = useTradingSignals(crypto);
   const { data: currentPrices = {} } = useCurrentPrices(tokens);
 
+  console.log('PredictionPanel - crypto:', crypto);
+  console.log('PredictionPanel - tokens:', tokens);
+  console.log('PredictionPanel - signals:', signals);
+
   const selectedToken = tokens.find(token => token.symbol === crypto);
+  console.log('PredictionPanel - selectedToken:', selectedToken);
+  
   const currentPrice = currentPrices[selectedToken?.coingecko_id || '']?.usd || 0;
+  console.log('PredictionPanel - currentPrice:', currentPrice);
 
   // Get latest signals for 3D and 7D timeframes
   const signals3D = signals.filter(s => s.timeframe === '3D').slice(0, 1);
   const signals7D = signals.filter(s => s.timeframe === '7D').slice(0, 1);
 
   const handleGeneratePrediction = async (timeframe: string) => {
-    if (!selectedToken) return;
+    if (!selectedToken) {
+      console.error('No selected token found');
+      toast({
+        title: "Error",
+        description: "No token selected",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    console.log('Generating prediction for:', selectedToken.symbol, timeframe);
     setGenerating(timeframe);
+    
     try {
-      await cryptoDataService.generateTradingSignal(selectedToken.symbol, timeframe);
+      const result = await cryptoDataService.generateTradingSignal(selectedToken.symbol, timeframe);
+      console.log('Generated signal:', result);
+      
       await refetchSignals();
+      
       toast({
         title: "Prediction Generated",
         description: `New ${timeframe} prediction created for ${crypto}`,
       });
     } catch (error) {
+      console.error('Error generating prediction:', error);
       toast({
         title: "Error",
-        description: "Failed to generate prediction",
+        description: `Failed to generate prediction: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -83,7 +104,7 @@ const PredictionPanel = ({ crypto }: PredictionPanelProps) => {
               <p className="text-slate-400 mb-4">No recent prediction available</p>
               <Button
                 onClick={() => handleGeneratePrediction(timeframe)}
-                disabled={generating === timeframe}
+                disabled={generating === timeframe || !selectedToken}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 {generating === timeframe ? (
@@ -179,6 +200,23 @@ const PredictionPanel = ({ crypto }: PredictionPanelProps) => {
       </Card>
     );
   };
+
+  if (!selectedToken) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardContent className="flex items-center justify-center h-32">
+            <p className="text-slate-400">Token not found</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-slate-800/50 border-slate-700">
+          <CardContent className="flex items-center justify-center h-32">
+            <p className="text-slate-400">Token not found</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
