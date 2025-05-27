@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Token {
@@ -191,7 +190,15 @@ class CryptoDataService {
       throw error;
     }
 
-    return data || [];
+    // Type-safe transformation to ensure sentiment_label matches our interface
+    return (data || []).map(item => ({
+      ...item,
+      sentiment_label: (item.sentiment_label === 'Bullish' || 
+                       item.sentiment_label === 'Neutral' || 
+                       item.sentiment_label === 'Bearish') 
+                       ? item.sentiment_label 
+                       : null
+    })) as SentimentData[];
   }
 
   // Store price data in database (for background data collection)
