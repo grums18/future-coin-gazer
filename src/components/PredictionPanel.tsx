@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -62,7 +61,7 @@ const PredictionPanel = ({ crypto }: PredictionPanelProps) => {
         risk_level: 'MEDIUM' as const,
         timeframe: timeframe,
         created_at: new Date().toISOString(),
-        id: crypto.randomUUID?.() || Math.random().toString()
+        id: globalThis.crypto?.randomUUID?.() || `mock-${Date.now()}-${Math.random()}`
       };
 
       console.log('Generated mock signal:', mockSignal);
